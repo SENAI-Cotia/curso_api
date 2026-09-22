@@ -1,8 +1,7 @@
 package com.curso_api.service;
 
-import com.curso_api.dto.CursoCadastroRequest;
+import com.curso_api.dto.CursoRequestDTO;
 import com.curso_api.dto.CursoResponseDTO;
-import com.curso_api.dto.InstrutorResumoDTO;
 import com.curso_api.entity.Curso;
 import com.curso_api.entity.Instrutor;
 import com.curso_api.repository.CursoRepository;
@@ -20,14 +19,14 @@ public class CursoService {
     private final CursoRepository cursoRepository;
     private final InstrutorRepository instrutorRepository;
 
-    public CursoResponseDTO criar(CursoCadastroRequest request) {
-        Instrutor instrutor = instrutorRepository.findById(request.instrutorId())
-                .orElseThrow(() -> new EntityNotFoundException("Instrutor não encontrado com id: " + request.instrutorId()));
+    public CursoResponseDTO criar(CursoRequestDTO dto) {
+        Instrutor instrutor = instrutorRepository.findById(dto.instrutorId())
+                .orElseThrow(() -> new EntityNotFoundException("Instrutor não encontrado com id: " + dto.instrutorId()));
 
         Curso curso = new Curso();
-        curso.setNome(request.nome());
-        curso.setDescricao(request.descricao());
-        curso.setCargaHoraria(request.cargaHoraria());
+        curso.setNome(dto.nome());
+        curso.setDescricao(dto.descricao());
+        curso.setCargaHoraria(dto.cargaHoraria());
         curso.setInstrutor(instrutor);
 
         return toResponseDTO(cursoRepository.save(curso));
@@ -44,15 +43,15 @@ public class CursoService {
         return toResponseDTO(buscarOuLancarErro(id));
     }
 
-    public CursoResponseDTO atualizar(Long id, CursoCadastroRequest request) {
+    public CursoResponseDTO atualizar(Long id, CursoRequestDTO dto) {
         Curso curso = buscarOuLancarErro(id);
 
-        Instrutor instrutor = instrutorRepository.findById(request.instrutorId())
-                .orElseThrow(() -> new EntityNotFoundException("Instrutor não encontrado com id: " + request.instrutorId()));
+        Instrutor instrutor = instrutorRepository.findById(dto.instrutorId())
+                .orElseThrow(() -> new EntityNotFoundException("Instrutor não encontrado com id: " + dto.instrutorId()));
 
-        curso.setNome(request.nome());
-        curso.setDescricao(request.descricao());
-        curso.setCargaHoraria(request.cargaHoraria());
+        curso.setNome(dto.nome());
+        curso.setDescricao(dto.descricao());
+        curso.setCargaHoraria(dto.cargaHoraria());
         curso.setInstrutor(instrutor);
 
         return toResponseDTO(cursoRepository.save(curso));
@@ -69,17 +68,12 @@ public class CursoService {
     }
 
     private CursoResponseDTO toResponseDTO(Curso curso) {
-        InstrutorResumoDTO instrutorResumo = new InstrutorResumoDTO(
-                curso.getInstrutor().getId(),
-                curso.getInstrutor().getNome()
-        );
-
         return new CursoResponseDTO(
                 curso.getId(),
                 curso.getNome(),
                 curso.getDescricao(),
                 curso.getCargaHoraria(),
-                instrutorResumo
+                curso.getInstrutor().getNome()
         );
     }
 }
