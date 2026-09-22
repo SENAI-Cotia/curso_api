@@ -1,7 +1,7 @@
 package com.curso_api.controller;
 
 import com.curso_api.dto.CursoCadastroRequest;
-import com.curso_api.entity.Curso;
+import com.curso_api.dto.CursoResponseDTO;
 import com.curso_api.service.CursoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,22 +18,22 @@ public class CursoController {
     private final CursoService cursoService;
 
     @PostMapping
-    public ResponseEntity<Curso> criar(@RequestBody CursoCadastroRequest request) {
+    public ResponseEntity<CursoResponseDTO> criar(@RequestBody CursoCadastroRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cursoService.criar(request));
     }
 
     @GetMapping
-    public ResponseEntity<List<Curso>> listarTodos() {
+    public ResponseEntity<List<CursoResponseDTO>> listarTodos() {
         return ResponseEntity.ok(cursoService.listarTodos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Curso> buscarPorId(@PathVariable Long id) {
+    public ResponseEntity<CursoResponseDTO> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(cursoService.buscarPorId(id));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Curso> atualizar(@PathVariable Long id, @RequestBody CursoCadastroRequest request) {
+    public ResponseEntity<CursoResponseDTO> atualizar(@PathVariable Long id, @RequestBody CursoCadastroRequest request) {
         return ResponseEntity.ok(cursoService.atualizar(id, request));
     }
 
