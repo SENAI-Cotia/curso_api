@@ -4,7 +4,6 @@ import com.curso_api.dto.InstrutorRequestDTO;
 import com.curso_api.dto.InstrutorResponseDTO;
 import com.curso_api.service.InstrutorService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +16,7 @@ public class InstrutorController {
 
     private final InstrutorService instrutorService;
 
-    Public InstrutorController(InstrutorService instrutorService) {
+    public InstrutorController(InstrutorService instrutorService) {
         this.instrutorService = instrutorService;
     }
 
