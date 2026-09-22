@@ -5,6 +5,7 @@ import com.curso_api.dto.CursoResponseDTO;
 import com.curso_api.entity.Curso;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface CursoMapper {
@@ -12,10 +13,11 @@ public interface CursoMapper {
     @Mapping(source = "instrutor.nome", target = "instrutorNome")
     CursoResponseDTO toResponse(Curso curso);
 
-    // instrutorId não pode ser convertido em Instrutor automaticamente:
-    // o Mapper não tem acesso ao banco de dados.
-    // O Service resolve o Instrutor e chama curso.setInstrutor() depois.
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "instrutor", ignore = true)
     Curso toEntity(CursoRequestDTO dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "instrutor", ignore = true)
+    void update(CursoRequestDTO dto, @MappingTarget Curso curso);
 }

@@ -45,9 +45,7 @@ public class CursoService {
         Curso curso = buscarOuLancarErro(id);
         Instrutor instrutor = buscarInstrutorOuLancarErro(dto.instrutorId());
 
-        curso.setNome(dto.nome());
-        curso.setDescricao(dto.descricao());
-        curso.setCargaHoraria(dto.cargaHoraria());
+        cursoMapper.update(dto, curso);
         curso.setInstrutor(instrutor);
 
         return cursoMapper.toResponse(cursoRepository.save(curso));
