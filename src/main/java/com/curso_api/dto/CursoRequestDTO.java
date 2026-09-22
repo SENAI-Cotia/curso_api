@@ -17,5 +17,8 @@ public record CursoRequestDTO(
         Integer cargaHoraria,
 
         @NotNull(message = "Instrutor é obrigatório")
-        Long instrutorId
+        Long instrutorId,
+
+        @NotNull(message = "Categoria é obrigatória")
+        Long categoriaId
 ) {}

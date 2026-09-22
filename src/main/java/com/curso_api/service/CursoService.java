@@ -2,6 +2,7 @@ package com.curso_api.service;
 
 import com.curso_api.dto.CursoRequestDTO;
 import com.curso_api.dto.CursoResponseDTO;
+import com.curso_api.entity.Categoria;
 import com.curso_api.entity.Curso;
 import com.curso_api.entity.Instrutor;
 import com.curso_api.mapper.CursoMapper;
@@ -19,13 +20,16 @@ public class CursoService {
 
     private final CursoRepository cursoRepository;
     private final InstrutorRepository instrutorRepository;
+    private final CategoriaService categoriaService;
     private final CursoMapper cursoMapper;
 
     public CursoResponseDTO criar(CursoRequestDTO dto) {
         Instrutor instrutor = buscarInstrutorOuLancarErro(dto.instrutorId());
+        Categoria categoria = categoriaService.buscarOuLancarErro(dto.categoriaId());
 
         Curso curso = cursoMapper.toEntity(dto);
         curso.setInstrutor(instrutor);
+        curso.setCategoria(categoria);
 
         return cursoMapper.toResponse(cursoRepository.save(curso));
     }
@@ -44,9 +48,11 @@ public class CursoService {
     public CursoResponseDTO atualizar(Long id, CursoRequestDTO dto) {
         Curso curso = buscarOuLancarErro(id);
         Instrutor instrutor = buscarInstrutorOuLancarErro(dto.instrutorId());
+        Categoria categoria = categoriaService.buscarOuLancarErro(dto.categoriaId());
 
         cursoMapper.update(dto, curso);
         curso.setInstrutor(instrutor);
+        curso.setCategoria(categoria);
 
         return cursoMapper.toResponse(cursoRepository.save(curso));
     }

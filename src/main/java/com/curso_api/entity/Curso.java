@@ -21,7 +21,11 @@ public class Curso {
 
     private Integer cargaHoraria;
 
-    @ManyToOne()
+    @ManyToOne
     @JoinColumn(name = "instrutor_id")
     private Instrutor instrutor;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
 }

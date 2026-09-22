@@ -11,13 +11,16 @@ import org.mapstruct.MappingTarget;
 public interface CursoMapper {
 
     @Mapping(source = "instrutor.nome", target = "instrutorNome")
+    @Mapping(source = "categoria.nome", target = "categoriaNome")
     CursoResponseDTO toResponse(Curso curso);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "instrutor", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
     Curso toEntity(CursoRequestDTO dto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "instrutor", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
     void update(CursoRequestDTO dto, @MappingTarget Curso curso);
 }
