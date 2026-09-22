@@ -1,5 +1,6 @@
 package com.curso_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class Instrutor {
 
     private String email;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "instrutor", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Curso> cursos = new ArrayList<>();
 }
