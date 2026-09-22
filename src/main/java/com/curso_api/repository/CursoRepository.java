@@ -1,0 +1,6 @@
+package com.curso_api.repository;
+
+import com.curso_api.entity.Curso;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CursoRepository extends JpaRepository<Curso, Long> {}
