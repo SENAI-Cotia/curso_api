@@ -5,16 +5,18 @@ import com.curso_api.dto.InstrutorResponseDTO;
 import com.curso_api.entity.Instrutor;
 import com.curso_api.repository.InstrutorRepository;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 public class InstrutorService {
-
+    
     private final InstrutorRepository instrutorRepository;
+
+    public InstrutorService(InstrutorRepository instrutorRepository) {
+        this.instrutorRepository = instrutorRepository;
+    }
 
     public InstrutorResponseDTO criar(InstrutorRequestDTO dto) {
         Instrutor instrutor = new Instrutor();
