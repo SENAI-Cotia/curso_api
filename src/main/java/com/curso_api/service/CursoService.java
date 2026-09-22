@@ -23,24 +23,20 @@ public class CursoService {
         Instrutor instrutor = instrutorRepository.findById(dto.instrutorId())
                 .orElseThrow(() -> new EntityNotFoundException("Instrutor não encontrado com id: " + dto.instrutorId()));
 
-        Curso curso = new Curso();
-        curso.setNome(dto.nome());
-        curso.setDescricao(dto.descricao());
-        curso.setCargaHoraria(dto.cargaHoraria());
-        curso.setInstrutor(instrutor);
+        Curso curso = toEntity(dto, instrutor);
 
-        return toResponseDTO(cursoRepository.save(curso));
+        return toResponse(cursoRepository.save(curso));
     }
 
     public List<CursoResponseDTO> listarTodos() {
         return cursoRepository.findAll()
                 .stream()
-                .map(this::toResponseDTO)
+                .map(this::toResponse)
                 .toList();
     }
 
     public CursoResponseDTO buscarPorId(Long id) {
-        return toResponseDTO(buscarOuLancarErro(id));
+        return toResponse(buscarOuLancarErro(id));
     }
 
     public CursoResponseDTO atualizar(Long id, CursoRequestDTO dto) {
@@ -54,7 +50,7 @@ public class CursoService {
         curso.setCargaHoraria(dto.cargaHoraria());
         curso.setInstrutor(instrutor);
 
-        return toResponseDTO(cursoRepository.save(curso));
+        return toResponse(cursoRepository.save(curso));
     }
 
     public void deletar(Long id) {
@@ -62,18 +58,34 @@ public class CursoService {
         cursoRepository.deleteById(id);
     }
 
-    private Curso buscarOuLancarErro(Long id) {
-        return cursoRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado com id: " + id));
-    }
+    // -------------------------------------------------------
+    // Mapeamento manual — o problema que o MapStruct resolve
+    // -------------------------------------------------------
 
-    private CursoResponseDTO toResponseDTO(Curso curso) {
-        return new CursoResponseDTO(
+    public CursoResponseDTO toResponse(Curso curso) {
+        CursoResponseDTO dto = new CursoResponseDTO(
                 curso.getId(),
                 curso.getNome(),
                 curso.getDescricao(),
                 curso.getCargaHoraria(),
                 curso.getInstrutor().getNome()
         );
+        return dto;
+    }
+
+    public Curso toEntity(CursoRequestDTO dto, Instrutor instrutor) {
+        Curso curso = new Curso();
+        curso.setNome(dto.nome());
+        curso.setDescricao(dto.descricao());
+        curso.setCargaHoraria(dto.cargaHoraria());
+        curso.setInstrutor(instrutor);
+        return curso;
+    }
+
+    // -------------------------------------------------------
+
+    private Curso buscarOuLancarErro(Long id) {
+        return cursoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Curso não encontrado com id: " + id));
     }
 }
