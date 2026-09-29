@@ -1,0 +1,93 @@
+name: CI/CD - Deploy na AWS (S3 + SSM)
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  test:
+    name: Build e Testes
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build
+        run: ./mvnw -B verify
+
+  deploy:
+    name: Deploy EC2
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    env:
+      BUCKET: ${{ secrets.S3_BUCKET }}
+      INSTANCE_ID: ${{ secrets.EC2_INSTANCE_ID }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build do JAR
+        run: |
+          ./mvnw -B clean package -DskipTests
+          cp target/curso_api-*.jar api.jar
+
+      - name: Credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Envia JAR e script para o S3
+        run: |
+          aws s3 cp api.jar "s3://$BUCKET/api.jar"
+          aws s3 cp api.jar "s3://$BUCKET/releases/${GITHUB_SHA}.jar"
+          aws s3 cp deploy/deploy.sh "s3://$BUCKET/deploy.sh"
+
+      - name: Executa o deploy na EC2 via SSM
+        run: |
+          CMD_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name "AWS-RunShellScript" \
+            --comment "Deploy ${GITHUB_SHA::7}" \
+            --parameters "commands=[\"aws s3 cp s3://$BUCKET/deploy.sh /tmp/deploy.sh\",\"bash /tmp/deploy.sh $BUCKET\"]" \
+            --query "Command.CommandId" --output text)
+          echo "Comando enviado: $CMD_ID"
+
+          for i in $(seq 1 36); do
+            sleep 5
+            STATUS=$(aws ssm get-command-invocation \
+              --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" \
+              --query Status --output text 2>/dev/null || echo Pending)
+            echo "Status: $STATUS"
+            case "$STATUS" in
+              Success|Failed|Cancelled|TimedOut) break ;;
+            esac
+          done
+
+          echo "----- Saída na EC2 -----"
+          aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" \
+            --query StandardOutputContent --output text
+          aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" \
+            --query StandardErrorContent --output text
+
+          [ "$STATUS" = "Success" ]
